@@ -34,7 +34,13 @@ defmodule Unzip do
       #
       # file_content = Enum.into(stream, <<>>, &IO.iodata_to_binary/1)
 
-  Supports STORED and DEFLATE compression methods. Does not support zip64 specification yet
+  Supports STORED, DEFLATE, and DEFLATE64 (method 9) compression methods. Supports zip64 specification.
+
+  ## Compression Methods
+
+  * STORED (method 0) - No compression
+  * DEFLATE (method 8) - Standard deflate compression using zlib
+  * DEFLATE64 (method 9) - Enhanced deflate using 64KB window (common in Windows-created ZIPs > 2GB)
 
   """
   require Logger
@@ -199,6 +205,33 @@ defmodule Unzip do
       end,
       fn z ->
         :zlib.close(z)
+      end
+    )
+  end
+
+  defp decompress(stream, 0x9) do
+    alias Unzip.Deflate64
+
+    stream
+    |> Stream.concat([@end_of_stream])
+    |> Stream.transform(
+      fn ->
+        {:ok, state} = Deflate64.init()
+        state
+      end,
+      fn
+        @end_of_stream, state ->
+          Deflate64.close(state)
+          {[], state}
+
+        data, state ->
+          case Deflate64.inflate(state, data) do
+            {:ok, decompressed} -> {[decompressed], state}
+            {:error, reason} -> raise Error, message: "Deflate64 error: #{inspect(reason)}"
+          end
+      end,
+      fn state ->
+        Deflate64.close(state)
       end
     )
   end

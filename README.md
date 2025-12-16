@@ -45,7 +45,7 @@ stream = Unzip.file_stream!(unzip, "baz.png")
 # file_content = Enum.into(stream, <<>>, &IO.iodata_to_binary/1)
 ```
 
-Supports STORED and DEFLATE compression methods. Supports zip64 specification.
+Supports STORED, DEFLATE, and DEFLATE64 (method 9) compression methods. Supports zip64 specification.
 
 ## Sample implementations of `Unzip.FileAccess` protocol
 
@@ -173,3 +173,7 @@ after
 end
 
 ```
+
+## Acknowledgments
+
+Deflate64 (compression method 9) support is provided by Mark Adler's `infback9` implementation from the [zlib](https://github.com/madler/zlib) contrib directory, licensed under the permissive zlib License. See `c_src/LICENSE.zlib` for details.

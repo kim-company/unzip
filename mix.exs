@@ -11,6 +11,8 @@ defmodule Unzip.MixProject do
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      compilers: [:elixir_make] ++ Mix.compilers(),
+      make_clean: ["clean"],
 
       # Package
       package: package(),
@@ -35,6 +37,7 @@ defmodule Unzip.MixProject do
 
   defp deps do
     [
+      {:elixir_make, "~> 0.6", runtime: false},
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:credo, ">= 0.0.0", only: [:dev, :test], runtime: false}
     ]
