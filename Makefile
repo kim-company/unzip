@@ -35,7 +35,10 @@ else
 endif
 
 # Link with zlib
-LDFLAGS += -lz
+ZLIB_CFLAGS := $(shell pkg-config --cflags zlib 2>/dev/null)
+ZLIB_LDFLAGS := $(shell pkg-config --libs zlib 2>/dev/null || echo "-lz")
+CFLAGS += $(ZLIB_CFLAGS)
+LDFLAGS += $(ZLIB_LDFLAGS)
 
 # Default target
 all: $(NIF_SO)
